@@ -245,8 +245,8 @@ function buildMessage() {
         const disc = Math.round(parseFloat(item['할인단가']||0)).toLocaleString('ko-KR');
         const wt = Math.round(parseFloat(item['중량']||0)*10)/10;
         msg += `• *${item['부위']}* [${item['등급']}] ${wt}kg · ${item['수량']}개\n`;
-        msg += `    • 매입 ${buy}원  |  판매 ${sell}원  |  할인 ${disc}원\n`;
-        msg += `    • 매익 ${m}%  |  할인율 ${dc}%\n\n`;
+        msg += `    • 매입 ${buy}원  |  판매 ${sell}원\n`;
+        msg += `    • 할인율 ${dc}%  |  할인 ${disc}원 (매익 ${m}%)\n\n`;
       }
       msg += '\n';
     }
