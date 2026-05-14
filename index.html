@@ -280,7 +280,7 @@ async function doSend() {
     const res = await fetch('/api/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ webhookUrl: url, message: buildMessage() })
+      body: JSON.stringify({ webhookUrl: url, message: buildMessage(), csvData: { d1: csvData[1], d2: csvData[2], date: (() => { const days=['일','월','화','수','목','금','토']; const now=new Date(); return `${now.getMonth()+1}월 ${now.getDate()}일(${days[now.getDay()]})`; })() } })
     });
     const data = await res.json();
     if (res.ok) {
