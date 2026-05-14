@@ -16,7 +16,9 @@ export default async function handler(req, res) {
     const json = await r.json();
     console.log('today key:', today, 'result:', json.result ? 'found' : 'not found');
     if (!json.result) return res.status(404).json({ error: 'No data today', key: today });
-    return res.status(200).json(JSON.parse(json.result));
+    const parsed = JSON.parse(json.result);
+const data = parsed.value ? JSON.parse(parsed.value) : parsed;
+return res.status(200).json(data);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
