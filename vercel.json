@@ -2,10 +2,14 @@
   "version": 2,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
-    { "src": "send.js", "use": "@vercel/node" }
+    { "src": "view.html", "use": "@vercel/static" },
+    { "src": "send.js", "use": "@vercel/node" },
+    { "src": "api/data.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/api/send", "dest": "/send.js" },
+    { "src": "/api/data", "dest": "/api/data.js" },
+    { "src": "/view", "dest": "/view.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
