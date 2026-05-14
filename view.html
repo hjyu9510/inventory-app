@@ -104,7 +104,7 @@ function render(data) {
         const dc = fmtPct(item['할인률']);
         html += `
           <div class="item-card${isLast?' last':''}">
-            <div class="item-top"><div class="item-name">${item['부위']}</div><div class="item-grade">${item['등급']}</div></div>
+            <div class="item-top"><div style="display:flex;align-items:center;gap:6px"><div class="item-name">${item['부위']}</div><div class="item-grade">${item['등급']}</div></div></div>
             <div class="item-meta">${fmtKg(item['중량'])}kg · ${item['수량']}개</div>
             <div class="price-row">
               <div class="price-box"><div class="pl">매입</div><div class="pv">${fmt(item['매입단가'])}원</div></div>
