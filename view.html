@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>체화재고 현황</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+    --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
+    --green: #3fb950; --green-bg: rgba(63,185,80,0.1); --green-border: rgba(63,185,80,0.3);
+    --red: #f85149; --red-bg: rgba(248,81,73,0.1); --red-border: rgba(248,81,73,0.3);
+    --amber: #d29922; --amber-bg: rgba(210,153,34,0.1); --amber-border: rgba(210,153,34,0.3);
+    --yellow-bg: rgba(255,213,0,0.08); --yellow-border: rgba(255,213,0,0.25);
+  }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 1.25rem 1rem 4rem; }
+  .container { max-width: 480px; margin: 0 auto; }
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .top-bar h1 { font-size: 16px; font-weight: 700; }
+  .date-badge { font-size: 11px; color: var(--text2); background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px; padding: 3px 10px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
+  .sum-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; }
+  .sum-box .sv { font-size: 17px; font-weight: 700; }
+  .sum-box .sl { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .sv.g { color: var(--green); } .sv.r { color: var(--red); } .sv.a { color: var(--amber); }
+  .group-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px 10px 0 0; margin-top: 12px; }
+  .group-header .gname { font-size: 14px; font-weight: 700; }
+  .group-header .ginfo { font-size: 11px; color: var(--text2); }
+  .week-label { padding: 7px 12px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); font-size: 11px; font-weight: 600; }
+  .week-label.w5 { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+  .week-label.w4 { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+  .week-label.w3 { background: var(--yellow-bg); border-color: var(--yellow-border); color: #e6c84a; }
+  .item-card { background: var(--bg2); border-left: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px; }
+  .item-card.last { border-radius: 0 0 10px 10px; }
+  .item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .item-name { font-size: 14px; font-weight: 700; }
+  .item-grade { font-size: 11px; color: var(--text2); background: var(--bg3); border-radius: 6px; padding: 2px 7px; }
+  .item-meta { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
+  .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+  .price-box { background: var(--bg3); border-radius: 8px; padding: 7px 9px; }
+  .price-box .pl { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+  .price-box .pv { font-size: 13px; font-weight: 600; }
+  .discount-row { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 8px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; }
+  .discount-row .dl { font-size: 10px; color: var(--green); }
+  .discount-row .dv { font-size: 14px; font-weight: 700; color: var(--green); }
+  .discount-row .dm { font-size: 10px; color: var(--text2); }
+  .footer-bar { margin-top: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-bar .ft { font-size: 12px; color: var(--text2); }
+  .footer-bar .fv { font-size: 14px; font-weight: 700; }
+  .empty { text-align: center; padding: 4rem 1rem; color: var(--text3); font-size: 14px; line-height: 2; }
+  .empty .big { font-size: 40px; margin-bottom: 12px; }
+  .loading { text-align: center; padding: 4rem 1rem; color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <div class="loading">⏳ 데이터 불러오는 중...</div>
+</div>
+<script>
+function fmt(n) { return Math.round(parseFloat(n)||0).toLocaleString('ko-KR'); }
+function fmtKg(n) { return Math.round((parseFloat(n)||0)*10)/10; }
+function fmtPct(n) { return Math.round((parseFloat(n)||0)*100*10)/10; }
+
+function render(data) {
+  const { d1, d2, date } = data;
+  const all = [...d1, ...d2];
+  const tkg = all.reduce((s,r) => s+(parseFloat(r['중량'])||0), 0);
+  const crit = all.filter(r=>r['주차']==='5주차 이상').length;
+  const w4 = all.filter(r=>r['주차']==='4주차').length;
+
+  let html = `
+    <div class="top-bar">
+      <h1>📦 체화재고 현황</h1>
+      <div class="date-badge">${date}</div>
+    </div>
+    <div class="summary-grid">
+      <div class="sum-box"><div class="sv g">${all.length}건</div><div class="sl">총 건수</div></div>
+      <div class="sum-box"><div class="sv g">${fmtKg(tkg)}kg</div><div class="sl">총 중량</div></div>
+      <div class="sum-box"><div class="sv r">${crit}건</div><div class="sl">🚨 5주차+</div></div>
+      <div class="sum-box"><div class="sv a">${w4}건</div><div class="sl">🔴 4주차</div></div>
+    </div>`;
+
+  for (const grp of [{n:'거세',e:'🐂',d:d1},{n:'암소',e:'🐄',d:d2}]) {
+    if (!grp.d.length) continue;
+    const gkg = grp.d.reduce((s,r)=>s+(parseFloat(r['중량'])||0),0);
+    const gcrit = grp.d.filter(r=>r['주차']==='5주차 이상').length;
+    html += `<div class="group-header"><div class="gname">${grp.e} ${grp.n}</div><div class="ginfo">총 ${grp.d.length}건 / ${fmtKg(gkg)}kg${gcrit>0?` · 🚨 ${gcrit}건`:''}</div></div>`;
+
+    const weeks = [['5주차 이상','w5','🚨'],['4주차','w4','🔴'],['3주차','w3','🟡']];
+    for (const [wk, cls, icon] of weeks) {
+      const items = grp.d.filter(r=>r['주차']===wk);
+      if (!items.length) continue;
+      const wkg = items.reduce((s,r)=>s+(parseFloat(r['중량'])||0),0);
+      html += `<div class="week-label ${cls}">${icon} ${wk} · ${items.length}건 / ${fmtKg(wkg)}kg</div>`;
+
+      const allWeeks = weeks.filter(([w])=>grp.d.filter(r=>r['주차']===w).length>0);
+      const isLastWeek = allWeeks[allWeeks.length-1][0] === wk;
+      items.forEach((item, idx) => {
+        const isLast = isLastWeek && idx === items.length-1;
+        const m = fmtPct(item['매익률']);
+        const dc = fmtPct(item['할인률']);
+        html += `
+          <div class="item-card${isLast?' last':''}">
+            <div class="item-top"><div class="item-name">${item['부위']}</div><div class="item-grade">${item['등급']}</div></div>
+            <div class="item-meta">${fmtKg(item['중량'])}kg · ${item['수량']}개</div>
+            <div class="price-row">
+              <div class="price-box"><div class="pl">매입</div><div class="pv">${fmt(item['매입단가'])}원</div></div>
+              <div class="price-box"><div class="pl">판매</div><div class="pv">${fmt(item['판매단가'])}원</div></div>
+            </div>
+            <div class="discount-row">
+              <div class="dl">할인 ${dc}% 적용가</div>
+              <div class="dv">${fmt(item['할인단가'])}원</div>
+              <div class="dm">매익 ${m}%</div>
+            </div>
+          </div>`;
+      });
+    }
+  }
+
+  html += `<div class="footer-bar"><div class="ft">✅ 총계</div><div class="fv">${all.length}건 · ${fmtKg(tkg)}kg${crit>0?` · 🚨 즉시처리 ${crit}건`:''}</div></div>`;
+  document.getElementById('app').innerHTML = html;
+}
+
+fetch('/api/data')
+  .then(r => {
+    if (!r.ok) throw new Error('no data');
+    return r.json();
+  })
+  .then(data => render(data))
+  .catch(() => {
+    document.getElementById('app').innerHTML = `<div class="empty"><div class="big">📭</div>오늘 등록된 데이터가 없어요.<br>관리자가 CSV를 업로드하면 볼 수 있어요.</div>`;
+  });
+</script>
+</body>
+</html>
