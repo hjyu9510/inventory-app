@@ -194,7 +194,7 @@ function loadFile(input, num) {
 function checkReady() {
   const both = csvData[1] || csvData[2];
   const hasUrl = document.getElementById('webhookUrl').value.trim().startsWith('https://');
-  document.getElementById('previewBtn').disabled = !both;
+  document.getElementById('previewBtn').disabled = !(csvData[1] || csvData[2]);
   document.getElementById('sendBtn').disabled = !(both && hasUrl);
   if (both) updateStats();
 }
@@ -261,7 +261,7 @@ function buildMessage() {
 }
 
 function doPreview() {
-  if (!csvData[1] || !csvData[2]) return;
+  if (!csvData[1] && !csvData[2]) return;
   document.getElementById('previewCard').style.display = 'block';
   document.getElementById('previewBox').textContent = buildMessage();
 }
