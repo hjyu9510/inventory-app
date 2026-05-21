@@ -18,7 +18,8 @@ export default async function handler(req, res) {
     if (!json.result) return res.status(404).json({ error: 'No data today', key: today });
     const parsed = JSON.parse(json.result);
 const data = parsed.value ? JSON.parse(parsed.value) : parsed;
-return res.status(200).json(data);
+const result = { d1: data.d1 || [], d2: data.d2 || [], date: data.date };
+return res.status(200).json(result);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
