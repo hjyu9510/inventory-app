@@ -83,8 +83,11 @@ function render(data) {
       <div class="sum-box"><div class="sv a">${w4}건</div><div class="sl">🔴 4주차</div></div>
     </div>`;
 
-  for (const grp of [{n:'거세',e:'🐂',d:d1},{n:'암소',e:'🐄',d:d2}]) {
-    if (!grp.d.length) continue;
+   for (const grp of [{n:'거세',e:'🐂',d:d1||[]},{n:'암소',e:'🐄',d:d2||[]}]) {
+    if (!grp.d.length) {
+      html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;color:var(--text3);font-size:13px;margin-top:12px">${grp.e} ${grp.n} · 오늘 체화재고 없음</div>`;
+      continue;
+    }
     const gkg = grp.d.reduce((s,r)=>s+(parseFloat(r['중량'])||0),0);
     const gcrit = grp.d.filter(r=>r['주차']==='5주차 이상').length;
     html += `<div class="group-header"><div class="gname">${grp.e} ${grp.n}</div><div class="ginfo">총 ${grp.d.length}건 / ${fmtKg(gkg)}kg${gcrit>0?` · 🚨 ${gcrit}건`:''}</div></div>`;
