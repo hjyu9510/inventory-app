@@ -227,7 +227,7 @@ function buildMessage() {
   const today = `${now.getMonth()+1}월 ${now.getDate()}일(${days[now.getDay()]})`;
   let msg = `*📦 체화재고 현황 | ${today}*\n\n`;
 
-  const groups = [{n:'거세',e:'🐂',d:csvData[1]},{n:'암소',e:'🐄',d:csvData[2]}];
+  const groups = [{n:'거세',e:'🐂',d:csvData[1]||[]},{n:'암소',e:'🐄',d:csvData[2]||[]}];
   for (const grp of groups) {
     const tkg = grp.d.reduce((s,r) => s + parseFloat(r['중량']||0), 0);
     msg += `\n${grp.e} *${grp.n}* - 총 ${grp.d.length}건 / ${Math.round(tkg*10)/10}kg\n─────────────────────────────\n`;
@@ -252,7 +252,7 @@ function buildMessage() {
     }
   }
 
-  const all = [...csvData[1], ...csvData[2]];
+  const all = [...(csvData[1]||[]), ...(csvData[2]||[])];
   const tkg = all.reduce((s,r) => s + parseFloat(r['중량']||0), 0);
   const crit = all.filter(r => r['주차'] === '5주차 이상').length;
   msg += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n✅ *총 ${all.length}건 / ${Math.round(tkg*10)/10}kg*`;
@@ -268,7 +268,7 @@ function doPreview() {
 
 async function doSend() {
   const url = document.getElementById('webhookUrl').value.trim();
-  if (!url || !csvData[1] || !csvData[2]) return;
+  if (!url || (!csvData[1] && !csvData[2])) return;
 
   const btn = document.getElementById('sendBtn');
   const toast = document.getElementById('toast');
