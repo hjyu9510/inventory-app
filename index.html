@@ -192,7 +192,7 @@ function loadFile(input, num) {
 }
 
 function checkReady() {
-  const both = csvData[1] && csvData[2];
+  const both = csvData[1] || csvData[2];
   const hasUrl = document.getElementById('webhookUrl').value.trim().startsWith('https://');
   document.getElementById('previewBtn').disabled = !both;
   document.getElementById('sendBtn').disabled = !(both && hasUrl);
