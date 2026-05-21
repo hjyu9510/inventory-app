@@ -229,8 +229,9 @@ function buildMessage() {
 
   const groups = [{n:'거세',e:'🐂',d:csvData[1]||[]},{n:'암소',e:'🐄',d:csvData[2]||[]}];
   for (const grp of groups) {
-    const tkg = grp.d.reduce((s,r) => s + parseFloat(r['중량']||0), 0);
-    msg += `\n${grp.e} *${grp.n}* - 총 ${grp.d.length}건 / ${Math.round(tkg*10)/10}kg\n─────────────────────────────\n`;
+    const tkg = grp.d.reduce((s, r) => s + parseFloat(r['중량'] || 0), 0);
+      if (!grp.d.length) { msg += `\n${grp.e} *${grp.n}* - 재고 없음\n─────────────────────────────\n`; continue; }
+      msg += `\n${grp.e} *${grp.n}* - 총 ${grp.d.length}건 / ${Math.round(tkg*10)/10}kg\n─────────────────────────────\n`;
     for (const wk of ['5주차 이상','4주차','3주차']) {
       const items = grp.d.filter(r => r['주차'] === wk);
       if (!items.length) continue;
